@@ -3,7 +3,7 @@
 ARG BASE_IMAGE
 ARG THIRD_PARTY_SOURCES_DIR=/usr/share/cassandra/third-party-sources
 
-FROM debian:stretch-slim as builder
+FROM debian:buster-slim as builder
 ARG THIRD_PARTY_SOURCES_DIR
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates wget unzip tar && rm -rf /var/lib/apt/lists/*
 COPY download-sources.sh /
@@ -24,7 +24,7 @@ RUN groupadd -r cassandra --gid=999 && useradd -r -g cassandra --uid=999 cassand
 
 RUN set -ex; \
 	apt-get update; \
-	apt-get install -y --no-install-recommends \
+	DEBIAN_FRONTEND="noninteractive" apt-get install -y --no-install-recommends \
 # solves warning: "jemalloc shared library could not be preloaded to speed up memory allocations"
 		libjemalloc1 \
 # free is used by cassandra-env.sh
@@ -37,6 +37,7 @@ RUN set -ex; \
 		python-pip \
 		python-setuptools \
 		jq \
+		tzdata \
 	; \
 	pip install -U pip yq; \
 	if ! command -v gpg > /dev/null; then \
@@ -54,7 +55,8 @@ RUN set -x \
 	&& wget -O /usr/local/bin/gosu "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture)" \
 	&& wget -O /usr/local/bin/gosu.asc "https://github.com/tianon/gosu/releases/download/$GOSU_VERSION/gosu-$(dpkg --print-architecture).asc" \
 	&& export GNUPGHOME="$(mktemp -d)" \
-		&& gpg --no-tty --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 \
+		&& ( gpg --no-tty --keyserver ha.pool.sks-keyservers.net --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 || \
+			gpg --no-tty --keyserver pgp.mit.edu --recv-keys B42F6819007F00F88E364FD4036A9C25BF357DD4 ) \
 	&& gpg --no-tty --batch --verify /usr/local/bin/gosu.asc /usr/local/bin/gosu \
 	&& { command -v gpgconf && gpgconf --kill all || :; } \
 	&& rm -rf "$GNUPGHOME" /usr/local/bin/gosu.asc \
@@ -148,7 +150,6 @@ RUN set -ex; \
 			apt-get -o Acquire::GzipIndexes=false update; \
 			;; \
 	esac; \
-	\
 	apt-get install -y \
 		# we ins
 		elassandra="$ELASSANDRA_VERSION" \
