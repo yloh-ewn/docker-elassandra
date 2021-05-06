@@ -3,7 +3,7 @@
 ARG BASE_IMAGE
 ARG THIRD_PARTY_SOURCES_DIR=/usr/share/cassandra/third-party-sources
 
-FROM ${BASE_REGISTRY}debian:buster-slim as builder
+FROM ${DOCKER_REGISTRY}debian:buster-slim as builder
 ARG THIRD_PARTY_SOURCES_DIR
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates wget unzip tar && rm -rf /var/lib/apt/lists/*
 COPY download-sources.sh /
