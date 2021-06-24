@@ -2,6 +2,7 @@
 # vim:set ft=dockerfile:
 ARG BASE_IMAGE
 ARG THIRD_PARTY_SOURCES_DIR=/usr/share/cassandra/third-party-sources
+ARG DOCKER_REGISTRY
 
 FROM ${DOCKER_REGISTRY}debian:buster-slim as builder
 ARG THIRD_PARTY_SOURCES_DIR
@@ -12,7 +13,7 @@ RUN mkdir -p ${THIRD_PARTY_SOURCES_DIR} && \
     cd ${THIRD_PARTY_SOURCES_DIR} && \
     cat /sources-url.csv | /download-sources.sh
 
-FROM ${BASE_IMAGE}
+FROM ${DOCKER_REGISTRY}${BASE_IMAGE}
 LABEL maintainer="support@strapdata.com"
 LABEL description="Elassandra docker image"
 
