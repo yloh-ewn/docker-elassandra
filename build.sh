@@ -143,6 +143,7 @@ build() {
                --build-arg ELASSANDRA_PACKAGE=${ELASSANDRA_PACKAGE} \
                --build-arg BASE_IMAGE=${DOCKER_REGISTRY}${BASE_IMAGE} \
                --build-arg ELASSANDRA_COMMIT=${ELASSANDRA_COMMIT} \
+	       --build-arg DOCKER_REGISTRY=${DOCKER_REGISTRY} \
                ${DOCKER_BUILD_OPTS} -f Dockerfile -t "${DOCKER_REGISTRY}${DOCKER_IMAGE}:$ELASSANDRA_TAG" .
 
   # cleanup
